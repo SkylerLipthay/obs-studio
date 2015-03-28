@@ -108,6 +108,7 @@ private:
 	/* general */
 	void LoadLanguageList();
 	void LoadThemeList();
+	void LoadScript();
 
 	/* output */
 	void LoadSimpleOutputSettings();

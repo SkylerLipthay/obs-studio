@@ -1686,6 +1686,9 @@ void OBSBasic::closeEvent(QCloseEvent *event)
 	delete saveTimer;
 	SaveProject();
 
+	// Make sure the script spins down before sources are freed.
+	App()->StopScript();
+
 	/* Clear the list boxes in ::closeEvent to ensure that we can process
 	 * any ->deleteLater events in this window created by Qt in relation to
 	 * their internal data */

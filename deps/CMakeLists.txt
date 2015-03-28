@@ -3,6 +3,7 @@ if(NOT MINGW)
 add_subdirectory(w32-pthreads)
 endif()
 
+add_subdirectory(duktape)
 add_subdirectory(glad)
 add_subdirectory(ipc-util)
 add_subdirectory(libff)

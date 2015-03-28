@@ -153,6 +153,16 @@
          <item row="2" column="1">
           <widget class="QComboBox" name="theme"/>
          </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_43">
+           <property name="text">
+            <string>Basic.Settings.General.Script</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QPlainTextEdit" name="script"/>
+         </item>
         </layout>
        </widget>
        <widget class="QWidget" name="streamPage">

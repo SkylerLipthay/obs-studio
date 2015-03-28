@@ -89,6 +89,7 @@ endif()
 set(obs_SOURCES
 	${obs_PLATFORM_SOURCES}
 	obs-app.cpp
+	obs-script.cpp
 	window-basic-main.cpp
 	window-basic-filters.cpp
 	window-basic-settings.cpp
@@ -118,6 +119,7 @@ set(obs_SOURCES
 
 set(obs_HEADERS
 	obs-app.hpp
+	obs-script.hpp
 	platform.hpp
 	window-main.hpp
 	window-basic-main.hpp
@@ -189,6 +191,7 @@ endif()
 
 target_link_libraries(obs
 	libobs
+	duktape
 	Qt5::Widgets
 	Qt5::Network
 	${obs_PLATFORM_LIBRARIES})

@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "window-main.hpp"
+#include "obs-script.hpp"
 
 std::string CurrentTimeString();
 std::string CurrentDateTimeString();
@@ -56,6 +57,7 @@ class OBSApp : public QApplication {
 private:
 	std::string                    locale;
 	std::string		       theme;
+	OBSScript                      script;
 	ConfigFile                     globalConfig;
 	TextLookup                     textLookup;
 	QPointer<OBSMainWindow>        mainWindow;
@@ -63,6 +65,7 @@ private:
 	bool InitGlobalConfig();
 	bool InitGlobalConfigDefaults();
 	bool InitLocale();
+	bool InitScript();
 	bool InitTheme();
 
 public:
@@ -79,6 +82,10 @@ public:
 	{
 		return locale.c_str();
 	}
+
+	inline const char *GetScript() const {return script.GetText().c_str();}
+	bool SetScript(const std::string& text);
+	void StopScript();
 
 	inline const char *GetTheme() const {return theme.c_str();}
 	bool SetTheme(std::string name, std::string path = "");

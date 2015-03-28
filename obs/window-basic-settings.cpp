@@ -111,6 +111,7 @@ void OBSBasicSettings::HookWidget(QWidget *widget, const char *signal,
 
 #define COMBO_CHANGED   SIGNAL(currentIndexChanged(int))
 #define EDIT_CHANGED    SIGNAL(textChanged(const QString &))
+#define TEDIT_CHANGED   SIGNAL(textChanged())
 #define CBEDIT_CHANGED  SIGNAL(editTextChanged(const QString &))
 #define CHECK_CHANGED   SIGNAL(clicked(bool))
 #define SCROLL_CHANGED  SIGNAL(valueChanged(int))
@@ -137,6 +138,7 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 
 	HookWidget(ui->language,             COMBO_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->theme, 		     COMBO_CHANGED,  GENERAL_CHANGED);
+	HookWidget(ui->script,               TEDIT_CHANGED,  GENERAL_CHANGED);
 	HookWidget(ui->outputMode,           COMBO_CHANGED,  OUTPUTS_CHANGED);
 	HookWidget(ui->streamType,           COMBO_CHANGED,  STREAM1_CHANGED);
 	HookWidget(ui->simpleOutputPath,     EDIT_CHANGED,   OUTPUTS_CHANGED);
@@ -223,6 +225,9 @@ OBSBasicSettings::OBSBasicSettings(QWidget *parent)
 	LoadEncoderTypes();
 	LoadColorRanges();
 	LoadSettings(false);
+
+	const QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+	ui->script->setFont(font);
 }
 
 void OBSBasicSettings::SaveCombo(QComboBox *widget, const char *section,
@@ -379,12 +384,18 @@ void OBSBasicSettings::LoadThemeList()
 		ui->theme->setCurrentIndex(idx);
 }
 
+void OBSBasicSettings::LoadScript()
+{
+	ui->script->setPlainText(App()->GetScript());
+}
+
 void OBSBasicSettings::LoadGeneralSettings()
 {
 	loading = true;
 
 	LoadLanguageList();
 	LoadThemeList();
+	LoadScript();
 
 	loading = false;
 }
@@ -1037,6 +1048,13 @@ void OBSBasicSettings::SaveGeneralSettings()
 		config_set_string(GetGlobalConfig(), "General", "Theme",
 				  theme.c_str());
 		App()->SetTheme(theme);
+	}
+
+	if (WidgetChanged(ui->script)) {
+		QString text = ui->script->toPlainText();
+		config_set_string(GetGlobalConfig(), "General", "Script",
+				QT_TO_UTF8(text));
+		App()->SetScript(text.toStdString());
 	}
 }
 

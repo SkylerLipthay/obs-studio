@@ -234,6 +234,28 @@ bool OBSApp::InitLocale()
 	return true;
 }
 
+bool OBSApp::SetScript(const std::string& text)
+{
+	script.Load(text);
+	return true;
+}
+
+void OBSApp::StopScript()
+{
+	script.Stop();
+}
+
+bool OBSApp::InitScript()
+{
+	const char *script = config_get_string(globalConfig, "General",
+			"Script");
+
+	if (!script)
+		script = "";
+
+	return SetScript(script);
+}
+
 bool OBSApp::SetTheme(std::string name, std::string path)
 {
 	theme = name;
@@ -318,6 +340,9 @@ bool OBSApp::OBSInit()
 		connect(mainWindow, SIGNAL(destroyed()), this, SLOT(quit()));
 
 		mainWindow->OBSInit();
+
+		if (!InitScript())
+			throw "Failed to load script";
 
 		return true;
 	} else {
