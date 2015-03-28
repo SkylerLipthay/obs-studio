@@ -85,6 +85,62 @@ static inline void remove_ref_whitespace(struct strref *ref)
 	}
 }
 
+static struct dstr escape_str_to_dstr(const char *str)
+{
+	const size_t len = strlen(str);
+	struct dstr out;
+
+	out.array    = bstrdup_n(str, len);
+	out.capacity = len+1;
+	out.len      = len;
+
+	dstr_replace(&out, "\\", "\\\\");
+	dstr_replace(&out, "\n", "\\n");
+
+	return out;
+}
+
+static char *unescape_str_n(const char *in, size_t len)
+{
+	char *out = bmalloc(len + 1);
+	const char *tin = in;
+	char *tout = out;
+	bool escaped = false;
+	size_t copy_count = 0;
+	size_t new_len = len;
+	size_t index;
+
+	for (index = 0; index < len; index++) {
+		const char c = in[index];
+		if (!escaped) {
+			if (c == '\\')
+				escaped = true;
+			copy_count++;
+		} else {
+			char replacement;
+			memcpy(tout, tin, copy_count - 1);
+			tout += copy_count;
+
+			switch (c) {
+			case 'n': replacement = '\n'; break;
+			default: replacement = c; break;
+			}
+
+			*(tout - 1) = replacement;
+			tin = in + index + 1;
+			copy_count = 0;
+			new_len--;
+			escaped = false;
+		}
+	}
+
+	memcpy(tout, tin, copy_count);
+	brealloc(out, new_len + 1);
+	out[new_len] = '\0';
+
+	return out;
+}
+
 static bool config_parse_string(struct lexer *lex, struct strref *ref,
 		char end)
 {
@@ -120,7 +176,7 @@ static void config_add_item(struct darray *items, struct strref *name,
 {
 	struct config_item item;
 	item.name  = bstrdup_n(name->array,  name->len);
-	item.value = bstrdup_n(value->array, value->len);
+	item.value = unescape_str_n(value->array, value->len);
 	darray_push_back(sizeof(struct config_item), items, &item);
 }
 
@@ -315,11 +371,14 @@ int config_save(config_t *config)
 			struct config_item *item = darray_item(
 					sizeof(struct config_item),
 					&section->items, j);
+			struct dstr value = escape_str_to_dstr(item->value);
 
 			dstr_cat(&str, item->name);
 			dstr_cat(&str, "=");
-			dstr_cat(&str, item->value);
+			dstr_cat_dstr(&str, &value);
 			dstr_cat(&str, "\n");
+
+			dstr_free(&value);
 		}
 	}
 
